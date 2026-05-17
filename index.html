@@ -885,6 +885,10 @@ function updateTimerUI() {
 // ============================================================
 // QUESTION
 // ============================================================
+
+// 各問題の表示用にシャッフル済み選択肢と正解インデックスを保持
+let currentShuffled = null;
+
 function showQuestion() {
   if (currentQIdx >= gameQuestions.length) { endGame(); return; }
   answered = false;
@@ -898,19 +902,20 @@ function showQuestion() {
 
   renderDots();
 
-  // Determine type (mix)
   const isOX = q.type === 'ox';
   document.getElementById('q-type-badge').textContent = isOX ? '○× 問題' : '4択問題';
 
   if (isOX) {
+    // ○×問題：問題文のみ表示。カタカナ読みや意味は解答後まで隠す
     document.getElementById('q-korean').textContent = q.ox_q;
-    document.getElementById('q-katakana').textContent = q.r ? `読み：${q.r}` : '';
+    document.getElementById('q-katakana').textContent = '';   // 答えバレ防止
     document.getElementById('q-japanese').textContent = '';
-    document.getElementById('q-hint-text').textContent = `ヒント：${q.exp}`;
+    document.getElementById('q-hint-text').textContent = '';  // 解答後に表示
   } else {
+    // 4択問題：ハングルを問題として表示
     document.getElementById('q-korean').textContent = q.k;
     document.getElementById('q-katakana').textContent = `📢 ${q.r}`;
-    document.getElementById('q-japanese').textContent = `意味：${q.j}`;
+    document.getElementById('q-japanese').textContent = '';   // 意味を選ばせるので隠す
     document.getElementById('q-hint-text').textContent = '';
   }
 
@@ -919,9 +924,10 @@ function showQuestion() {
   area.innerHTML = '';
 
   if (isOX) {
+    currentShuffled = null;
     const wrap = document.createElement('div');
     wrap.className = 'choices-ox';
-    ['○ 正しい','× 間違い'].forEach((label, i) => {
+    ['○ 正しい', '× 間違い'].forEach((label, i) => {
       const btn = document.createElement('button');
       btn.className = 'choice-btn ox';
       btn.textContent = i === 0 ? '○' : '×';
@@ -931,27 +937,35 @@ function showQuestion() {
     });
     area.appendChild(wrap);
   } else {
+    // 4択：選択肢をシャッフルして正解位置をランダム化
+    const correctText = q.choices[q.ans];
+    const shuffled = shuffle([...q.choices]);
+    const newAnsIdx = shuffled.indexOf(correctText);
+    currentShuffled = { choices: shuffled, ansIdx: newAnsIdx };
+
     const wrap = document.createElement('div');
     wrap.className = 'choices-4';
-    q.choices.forEach((c, i) => {
+    shuffled.forEach((c, i) => {
       const btn = document.createElement('button');
       btn.className = 'choice-btn';
       btn.textContent = c;
-      btn.onclick = () => answer4(i, q, wrap);
+      btn.onclick = () => answer4(i, q, wrap, currentShuffled);
       wrap.appendChild(btn);
     });
     area.appendChild(wrap);
   }
 }
 
-function answer4(idx, q, wrap) {
+function answer4(idx, q, wrap, shuffled) {
   if (answered) return;
   answered = true;
   const btns = wrap.querySelectorAll('.choice-btn');
-  const correct = idx === q.ans;
-  btns[q.ans].classList.add('correct');
+  const correct = idx === shuffled.ansIdx;
+  btns[shuffled.ansIdx].classList.add('correct');
   if (!correct) btns[idx].classList.add('wrong');
-  processAnswer(correct, q, btns[q.ans].textContent);
+  // 解答後に意味も表示
+  document.getElementById('q-japanese').textContent = `意味：${q.j}`;
+  processAnswer(correct, q, shuffled.choices[shuffled.ansIdx]);
 }
 
 function answerOX(userYes, q) {
@@ -959,6 +973,9 @@ function answerOX(userYes, q) {
   answered = true;
   const correct = (userYes === q.ox_a);
   const correctLabel = q.ox_a ? '○（正しい）' : '×（間違い）';
+  // 解答後にカタカナ読みと解説を表示
+  if (q.r) document.getElementById('q-katakana').textContent = `📢 ${q.r}`;
+  document.getElementById('q-hint-text').textContent = `💡 ${q.exp}`;
   processAnswer(correct, q, correctLabel);
 }
 
@@ -969,7 +986,7 @@ function processAnswer(correct, q, correctLabel) {
     timeLeft = Math.min(timeLeft + 5, 180);
     dotStates[currentQIdx] = 'correct';
     fb.className = 'feedback correct';
-    fb.textContent = `✅ 정답！ ＋5秒 (${q.r} ／ ${q.j})`;
+    fb.textContent = `✅ 정답！ ＋5秒`;
   } else {
     timeLeft = Math.max(timeLeft - 5, 0);
     dotStates[currentQIdx] = 'wrong';
