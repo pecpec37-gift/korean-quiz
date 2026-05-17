@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🇰🇷 韓国語クイズ道場</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&family=Noto+Sans+JP:wght@400;700;900&display=swap');
+
+  :root {
+    --red: #C0392B;
+    --blue: #2471A3;
+    --gold: #F1C40F;
+    --dark: #1a1a2e;
+    --card: #16213e;
+    --card2: #0f3460;
+    --text: #eee;
+    --sub: #aaa;
+    --radius: 16px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    width: 100%;
+    background: linear-gradient(135deg, var(--red) 0%, #922B21 50%, var(--blue) 100%);
+    padding: 28px 20px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '태극기';
+    position: absolute;
+    font-size: 120px;
+    opacity: 0.04;
+    top: -20px;
+    right: -10px;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  header h1 {
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+  }
+  header p {
+    font-size: 0.9rem;
+    opacity: 0.85;
+    margin-top: 6px;
+  }
+  .flag { font-size: 2rem; vertical-align: middle; margin-right: 8px; }
+
+  /* ===== SCREENS ===== */
+  .screen { display: none; width: 100%; max-width: 700px; padding: 24px 16px; }
+  .screen.active { display: block; }
+
+  /* ===== TOP SCREEN ===== */
+  .intro-box {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .intro-box h2 { font-size: 1.1rem; margin-bottom: 12px; color: var(--gold); }
+  .rules { font-size: 0.88rem; line-height: 1.9; color: var(--sub); }
+  .rules strong { color: var(--text); }
+
+  .genre-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .genre-btn {
+    background: var(--card);
+    border: 2px solid rgba(255,255,255,0.1);
+    border-radius: var(--radius);
+    padding: 20px 12px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+    color: var(--text);
+    font-family: inherit;
+  }
+  .genre-btn:hover {
+    border-color: var(--gold);
+    background: var(--card2);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow);
+  }
+  .genre-btn .emoji { font-size: 2rem; display: block; margin-bottom: 8px; }
+  .genre-btn .name { font-size: 0.95rem; font-weight: 700; }
+  .genre-btn .count { font-size: 0.78rem; color: var(--sub); margin-top: 4px; }
+
+  .rank-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #gold, #e67e22);
+    background: linear-gradient(135deg, #b7950b, #e67e22);
+    border: none;
+    border-radius: var(--radius);
+    color: white;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: center;
+    transition: opacity 0.2s;
+  }
+  .rank-btn:hover { opacity: 0.85; }
+
+  /* ===== RANKING SCREEN ===== */
+  .tab-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .tab {
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 2px solid rgba(255,255,255,0.15);
+    background: transparent;
+    color: var(--sub);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active { border-color: var(--gold); color: var(--gold); background: rgba(241,196,15,0.1); }
+
+  .rank-list { list-style: none; }
+  .rank-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--card);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    gap: 14px;
+  }
+  .rank-num { font-size: 1.3rem; font-weight: 900; width: 32px; text-align: center; }
+  .rank-num.gold { color: #F1C40F; }
+  .rank-num.silver { color: #BDC3C7; }
+  .rank-num.bronze { color: #E67E22; }
+  .rank-name { flex: 1; font-weight: 700; }
+  .rank-score { font-size: 1.1rem; font-weight: 900; color: var(--gold); }
+
+  /* ===== GAME SCREEN ===== */
+  .game-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .q-counter { font-size: 0.9rem; color: var(--sub); }
+  .score-box { font-size: 1.1rem; font-weight: 900; color: var(--gold); }
+
+  .timer-wrap {
+    width: 100%;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    margin-bottom: 16px;
+    overflow: hidden;
+  }
+  .timer-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--red));
+    border-radius: 4px;
+    transition: width 1s linear, background 0.5s;
+  }
+  .timer-text {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 16px;
+    font-variant-numeric: tabular-nums;
+  }
+  .timer-text.danger { color: var(--red); animation: pulse 0.5s infinite alternate; }
+  @keyframes pulse { from { opacity: 1; } to { opacity: 0.5; } }
+
+  /* Question card */
+  .q-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255,255,255,0.08);
+    text-align: center;
+    min-height: 120px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .q-type-badge {
+    font-size: 0.75rem;
+    background: rgba(255,255,255,0.1);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+    color: var(--sub);
+  }
+  .q-korean {
+    font-size: clamp(1.8rem, 6vw, 3rem);
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 900;
+    line-height: 1.3;
+    margin-bottom: 6px;
+    word-break: keep-all;
+  }
+  .q-katakana {
+    font-size: 0.95rem;
+    color: #74b9ff;
+    margin-bottom: 4px;
+  }
+  .q-japanese {
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .q-hint-text {
+    font-size: 0.85rem;
+    color: var(--sub);
+    margin-top: 8px;
+    font-style: italic;
+  }
+
+  /* Choices */
+  .choices-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .choices-ox {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .choice-btn {
+    padding: 16px 12px;
+    border-radius: 12px;
+    border: 2px solid rgba(255,255,255,0.12);
+    background: var(--card2);
+    color: var(--text);
+    font-family: 'Noto Sans KR', 'Noto Sans JP', sans-serif;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    line-height: 1.4;
+    word-break: keep-all;
+  }
+  .choice-btn:hover:not(:disabled) {
+    border-color: var(--gold);
+    background: rgba(241,196,15,0.15);
+    transform: translateY(-2px);
+  }
+  .choice-btn.correct {
+    border-color: #27ae60;
+    background: rgba(39,174,96,0.25);
+    color: #2ecc71;
+  }
+  .choice-btn.wrong {
+    border-color: var(--red);
+    background: rgba(192,57,43,0.25);
+    color: #e74c3c;
+  }
+  .choice-btn.ox { font-size: 2.5rem; padding: 24px; }
+
+  /* Feedback */
+  .feedback {
+    text-align: center;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-weight: 700;
+    font-size: 1rem;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .feedback.correct { background: rgba(39,174,96,0.2); color: #2ecc71; }
+  .feedback.wrong { background: rgba(192,57,43,0.2); color: #e74c3c; }
+
+  .next-btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--blue), #1a5276);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.05rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .next-btn:hover { opacity: 0.85; }
+
+  /* ===== RESULT SCREEN ===== */
+  .result-header {
+    text-align: center;
+    padding: 32px 20px;
+    background: var(--card);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+  }
+  .result-trophy { font-size: 4rem; display: block; margin-bottom: 8px; }
+  .result-score {
+    font-size: clamp(3rem, 10vw, 5rem);
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .result-label { font-size: 1rem; color: var(--sub); margin-top: 4px; }
+  .result-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .stat-box {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px 8px;
+    text-align: center;
+  }
+  .stat-num { font-size: 1.8rem; font-weight: 900; }
+  .stat-lbl { font-size: 0.78rem; color: var(--sub); margin-top: 2px; }
+
+  /* Wrong answers */
+  .wrong-list { margin-bottom: 20px; }
+  .wrong-list h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .wrong-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    border-left: 4px solid var(--red);
+  }
+  .wrong-q { font-size: 0.88rem; color: var(--sub); margin-bottom: 6px; }
+  .wrong-korean {
+    font-size: 1.5rem;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .wrong-reading { font-size: 0.85rem; color: #74b9ff; margin-bottom: 4px; }
+  .wrong-meaning { font-size: 0.9rem; }
+  .wrong-exp { font-size: 0.82rem; color: var(--sub); margin-top: 4px; font-style: italic; }
+
+  /* Name input */
+  .name-input-wrap { margin-bottom: 20px; }
+  .name-input-wrap label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: var(--sub); }
+  .name-input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--card2);
+    border: 2px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: inherit;
+    outline: none;
+  }
+  .name-input:focus { border-color: var(--gold); }
+
+  .btn-row { display: flex; gap: 10px; }
+  .btn-primary {
+    flex: 1;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--red), #922B21);
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-primary:hover { opacity: 0.85; }
+  .btn-secondary {
+    flex: 1;
+    padding: 14px;
+    background: var(--card);
+    border: 2px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: var(--text);
+    font-size: 1rem;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-secondary:hover { opacity: 0.75; }
+
+  /* ===== BACK BUTTON ===== */
+  .back-btn {
+    background: none;
+    border: none;
+    color: var(--sub);
+    font-family: inherit;
+    font-size: 0.88rem;
+    cursor: pointer;
+    padding: 8px 0;
+    margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.2s;
+  }
+  .back-btn:hover { color: var(--text); }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-dots {
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    transition: background 0.3s;
+  }
+  .dot.done { background: #27ae60; }
+  .dot.wrong-dot { background: var(--red); }
+  .dot.current { background: var(--gold); }
+
+  /* empty state */
+  .empty-rank { text-align: center; color: var(--sub); padding: 32px; font-size: 0.9rem; }
+
+  footer {
+    text-align: center;
+    padding: 24px;
+    color: rgba(255,255,255,0.25);
+    font-size: 0.78rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1><span class="flag">🇰🇷</span>韓国語クイズ道場</h1>
+  <p>楽しみながらハングルを学ぼう！ 4択＋○×ミックス・10問勝負</p>
+</header>
+
+<!-- ===== TOP SCREEN ===== -->
+<div id="screen-top" class="screen active">
+  <div style="max-width:700px;margin:0 auto;">
+    <div class="intro-box">
+      <h2>📋 ルール</h2>
+      <div class="rules">
+        制限時間：<strong>120秒</strong> ／ 各ジャンル <strong>10問</strong> ランダム出題<br>
+        ✅ 正解 → <strong>+10点</strong> ＋ 時間+5秒（フィードバック「정답！＋5秒」）<br>
+        ❌ 不正解 → 減点なし ＋ 時間−5秒（フィードバック「正解は〇〇（−5秒）」）<br>
+        🏆 残り時間がそのままボーナス点に加算！<br>
+        【4択】と【○×】がランダムにミックスされます
+      </div>
+    </div>
+
+    <div class="genre-grid">
+      <button class="genre-btn" onclick="selectGenre('hangul')">
+        <span class="emoji">🔤</span>
+        <span class="name">ハングル基礎</span>
+        <span class="count">30問収録</span>
+      </button>
+      <button class="genre-btn" onclick="selectGenre('greet')">
+        <span class="emoji">👋</span>
+        <span class="name">あいさつ・日常</span>
+        <span class="count">30問収録</span>
+      </button>
+      <button class="genre-btn" onclick="selectGenre('number')">
+        <span class="emoji">🔢</span>
+        <span class="name">数字・時間</span>
+        <span class="count">25問収録</span>
+      </button>
+      <button class="genre-btn" onclick="selectGenre('food')">
+        <span class="emoji">🍜</span>
+        <span class="name">食べ物・料理</span>
+        <span class="count">25問収録</span>
+      </button>
+      <button class="genre-btn" onclick="selectGenre('travel')">
+        <span class="emoji">🗺️</span>
+        <span class="name">旅行・観光</span>
+        <span class="count">25問収録</span>
+      </button>
+      <button class="genre-btn" onclick="selectGenre('kpop')">
+        <span class="emoji">🎵</span>
+        <span class="name">K-POP・文化</span>
+        <span class="count">20問収録</span>
+      </button>
+    </div>
+
+    <button class="rank-btn" onclick="showRanking()">🏆 スコアランキングを見る</button>
+  </div>
+</div>
+
+<!-- ===== RANKING SCREEN ===== -->
+<div id="screen-ranking" class="screen">
+  <div style="max-width:700px;margin:0 auto;">
+    <button class="back-btn" onclick="showScreen('screen-top')">← トップへ</button>
+    <h2 style="margin-bottom:16px;">🏆 スコアランキング</h2>
+    <div class="tab-row" id="rank-tabs"></div>
+    <ul class="rank-list" id="rank-list"></ul>
+  </div>
+</div>
+
+<!-- ===== GAME SCREEN ===== -->
+<div id="screen-game" class="screen">
+  <div style="max-width:700px;margin:0 auto;">
+    <button class="back-btn" onclick="confirmBack()">← 戻る</button>
+    <div class="game-header">
+      <span class="q-counter" id="q-counter">Q1 / 10</span>
+      <span class="score-box" id="score-box">0 pt</span>
+    </div>
+    <div class="progress-dots" id="progress-dots"></div>
+    <div class="timer-text" id="timer-text">120</div>
+    <div class="timer-wrap"><div class="timer-bar" id="timer-bar"></div></div>
+    <div class="q-card" id="q-card">
+      <div class="q-type-badge" id="q-type-badge"></div>
+      <div class="q-korean" id="q-korean"></div>
+      <div class="q-katakana" id="q-katakana"></div>
+      <div class="q-japanese" id="q-japanese"></div>
+      <div class="q-hint-text" id="q-hint-text"></div>
+    </div>
+    <div id="choices-area"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="next-btn" style="display:none;" onclick="nextQuestion()">次の問題へ →</button>
+  </div>
+</div>
+
+<!-- ===== RESULT SCREEN ===== -->
+<div id="screen-result" class="screen">
+  <div style="max-width:700px;margin:0 auto;">
+    <div class="result-header">
+      <span class="result-trophy" id="result-trophy">🏆</span>
+      <div class="result-score" id="result-score">0</div>
+      <div class="result-label">TOTAL SCORE</div>
+    </div>
+    <div class="result-stats">
+      <div class="stat-box">
+        <div class="stat-num" id="stat-correct" style="color:#2ecc71;">0</div>
+        <div class="stat-lbl">正解数</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-wrong" style="color:#e74c3c;">0</div>
+        <div class="stat-lbl">不正解</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-num" id="stat-bonus" style="color:#F1C40F;">+0</div>
+        <div class="stat-lbl">時間ボーナス</div>
+      </div>
+    </div>
+
+    <div class="name-input-wrap" id="name-input-wrap">
+      <label>プレーヤー名を入力してランキングに登録</label>
+      <input class="name-input" id="player-name" type="text" placeholder="お名前を入力..." maxlength="16">
+    </div>
+
+    <div class="btn-row" style="margin-bottom:20px;">
+      <button class="btn-primary" onclick="saveScore()">🏆 ランキングに登録</button>
+      <button class="btn-secondary" onclick="retryGenre()">もう一度挑戦</button>
+    </div>
+    <button class="btn-secondary" style="width:100%;margin-bottom:20px;" onclick="showScreen('screen-top')">← ジャンル選択へ</button>
+
+    <div class="wrong-list" id="wrong-list"></div>
+  </div>
+</div>
+
+<footer>🇰🇷 韓国語クイズ道場 — 楽しく学ぼう！</footer>
+
+<script>
+// ============================================================
+// QUESTION DATABASE  155問
+// ============================================================
+const QUESTIONS = {
+  hangul: [
+    // ハングル基礎 30問
+    {k:'ㅏ', r:'ア', j:'母音「ア」', exp:'ハングルの基本母音。日本語の「ア」と同じ発音。', ox_q:'「ㅏ」は「ア」と読む', ox_a:true, type:'ox'},
+    {k:'ㅓ', r:'オ（後舌）', j:'母音「オ/ㅓ」', exp:'口を大きく開けて発音するオ。「ㅗ」より口が開く。', ox_q:'「ㅓ」は「ウ」と読む', ox_a:false, type:'ox'},
+    {k:'ㅗ', r:'オ', j:'母音「オ/ㅗ」', exp:'唇を丸くして発音するオ。日本語の「お」に近い。', ox_q:'「ㅗ」は「オ」と読む', ox_a:true, type:'ox'},
+    {k:'ㅜ', r:'ウ', j:'母音「ウ」', exp:'唇を丸くして発音するウ。日本語の「う」に近い。', choices:['ア','イ','ウ','エ'], ans:2, type:'4'},
+    {k:'ㅡ', r:'ウ（平唇）', j:'母音「으/ㅡ」', exp:'唇を横に引いて発音するウ。「ㅜ」より口が横広。', choices:['ウ（平唇）','エ','オ','ア'], ans:0, type:'4'},
+    {k:'ㅣ', r:'イ', j:'母音「イ」', exp:'日本語の「い」と同じ発音。', choices:['ア','イ','ウ','オ'], ans:1, type:'4'},
+    {k:'ㄱ', r:'カ行（語頭）', j:'子音「ㄱ」', exp:'語頭では「カ行」、語中では「ガ行」になる。', ox_q:'「ㄱ」は語頭で「カ行」と発音する', ox_a:true, type:'ox'},
+    {k:'ㄴ', r:'ナ行', j:'子音「ㄴ」', exp:'日本語のナ行と同じ。鼻音。', choices:['ナ行','マ行','ラ行','ハ行'], ans:0, type:'4'},
+    {k:'ㄷ', r:'タ行（語頭）', j:'子音「ㄷ」', exp:'語頭では「タ行」、語中では「ダ行」。', choices:['タ行','サ行','カ行','パ行'], ans:0, type:'4'},
+    {k:'ㄹ', r:'ラ行', j:'子音「ㄹ」', exp:'日本語のラ行に近いが、語末では「ル」のような音になる。', choices:['ラ行','ナ行','タ行','サ行'], ans:0, type:'4'},
+    {k:'ㅁ', r:'マ行', j:'子音「ㅁ」', exp:'日本語のマ行と同じ鼻音。', choices:['マ行','バ行','ナ行','パ行'], ans:0, type:'4'},
+    {k:'ㅂ', r:'パ行（語頭）', j:'子音「ㅂ」', exp:'語頭では「パ行」、語中では「バ行」。', choices:['パ行','マ行','ハ行','ナ行'], ans:0, type:'4'},
+    {k:'ㅅ', r:'サ行', j:'子音「ㅅ」', exp:'日本語のサ行に近い。「시」のみ「シ」と発音。', choices:['サ行','タ行','カ行','ハ行'], ans:0, type:'4'},
+    {k:'ㅇ', r:'（語頭は無音）', j:'子音「ㅇ」', exp:'語頭では発音せず、語末では「ン（鼻音）」になる。', ox_q:'「ㅇ」は語頭では発音しない', ox_a:true, type:'ox'},
+    {k:'ㅈ', r:'チャ行', j:'子音「ㅈ」', exp:'日本語のチャ行に近い。語中では濁音化する。', choices:['チャ行','カ行','サ行','タ行'], ans:0, type:'4'},
+    {k:'ㅎ', r:'ハ行', j:'子音「ㅎ」', exp:'日本語のハ行と同じ。', choices:['ハ行','パ行','カ行','サ行'], ans:0, type:'4'},
+    {k:'가', r:'カ', j:'「ガ」ではなく「カ」', exp:'ㄱ+ㅏ。語頭では無声音「カ」。', choices:['カ','ガ','ア','タ'], ans:0, type:'4'},
+    {k:'나', r:'ナ', j:'「나」の読み方', exp:'ㄴ+ㅏ。日本語のナに相当。', choices:['ナ','マ','ラ','タ'], ans:0, type:'4'},
+    {k:'다', r:'タ', j:'「다」の読み方', exp:'ㄷ+ㅏ。語頭では「タ」。', choices:['タ','ダ','サ','カ'], ans:0, type:'4'},
+    {k:'라', r:'ラ', j:'「라」の読み方', exp:'ㄹ+ㅏ。ラ行の音。', choices:['ラ','ナ','マ','ハ'], ans:0, type:'4'},
+    {k:'마', r:'マ', j:'「마」の読み方', exp:'ㅁ+ㅏ。マ行の音。', choices:['マ','バ','ナ','パ'], ans:0, type:'4'},
+    {k:'바', r:'パ', j:'「바」の読み方', exp:'ㅂ+ㅏ。語頭では「パ」。', choices:['パ','バ','マ','ハ'], ans:0, type:'4'},
+    {k:'사', r:'サ', j:'「사」の読み方', exp:'ㅅ+ㅏ。サ行の音。', choices:['サ','タ','カ','ハ'], ans:0, type:'4'},
+    {k:'아', r:'ア', j:'「아」の読み方', exp:'ㅇ（無音）+ㅏ。純粋にアの音。', choices:['ア','ヤ','ウ','エ'], ans:0, type:'4'},
+    {k:'자', r:'チャ', j:'「자」の読み方', exp:'ㅈ+ㅏ。チャ行の音。', choices:['チャ','サ','タ','カ'], ans:0, type:'4'},
+    {k:'하', r:'ハ', j:'「하」の読み方', exp:'ㅎ+ㅏ。ハ行の音。', choices:['ハ','パ','カ','サ'], ans:0, type:'4'},
+    {k:'이', r:'イ', j:'「이」の読み方', exp:'ㅇ（無音）+ㅣ。純粋にイの音。', choices:['イ','ウ','エ','ア'], ans:0, type:'4'},
+    {k:'우', r:'ウ', j:'「우」の読み方', exp:'ㅇ（無音）+ㅜ。ウの音。', choices:['ウ','オ','ア','イ'], ans:0, type:'4'},
+    {k:'오', r:'オ', j:'「오」の読み方', exp:'ㅇ（無音）+ㅗ。オの音。', choices:['オ','ウ','ア','エ'], ans:0, type:'4'},
+    {k:'에', r:'エ', j:'「에」の読み方', exp:'ㅇ（無音）+ㅔ。エの音。', choices:['エ','イ','ア','ウ'], ans:0, type:'4'},
+  ],
+
+  greet: [
+    // あいさつ・日常 30問
+    {k:'안녕하세요', r:'アンニョンハセヨ', j:'こんにちは（丁寧）', exp:'最も基本的な挨拶。いつでも使える万能表現。', choices:['こんにちは','ありがとう','さようなら','はじめまして'], ans:0, type:'4'},
+    {k:'감사합니다', r:'カムサハムニダ', j:'ありがとうございます', exp:'公式・丁寧なお礼表現。カジュアルには「고마워」。', choices:['ありがとう','すみません','さようなら','よろしく'], ans:0, type:'4'},
+    {k:'죄송합니다', r:'チェソンハムニダ', j:'申し訳ありません', exp:'深いお詫びの表現。「미안해요」より丁寧。', choices:['申し訳ない','ありがとう','こんにちは','さようなら'], ans:0, type:'4'},
+    {k:'안녕히 가세요', r:'アンニョンヒ カセヨ', j:'さようなら（送り出す側）', exp:'去る人を見送るときの表現。', choices:['さようなら（送り側）','さようなら（去る側）','おはよう','おやすみ'], ans:0, type:'4'},
+    {k:'안녕히 계세요', r:'アンニョンヒ ケセヨ', j:'さようなら（去る側）', exp:'自分が去るときに使う表現。', choices:['さようなら（去る側）','さようなら（送り側）','おはよう','こんばんは'], ans:0, type:'4'},
+    {k:'처음 뵙겠습니다', r:'チョウム ベッケッスムニダ', j:'はじめまして', exp:'初対面の最も丁寧な挨拶表現。', choices:['はじめまして','よろしく','こんにちは','また会いましょう'], ans:0, type:'4'},
+    {k:'잘 부탁드립니다', r:'チャル プタッドリムニダ', j:'よろしくお願いします', exp:'ビジネスや初対面でよく使う。', choices:['よろしく','ありがとう','さようなら','おめでとう'], ans:0, type:'4'},
+    {k:'네', r:'ネ', j:'はい', exp:'肯定の返事。日本語の「はい」と同じ。', ox_q:'「네」は「はい」という意味である', ox_a:true, type:'ox'},
+    {k:'아니요', r:'アニヨ', j:'いいえ', exp:'否定の返事。カジュアルには「아니」。', ox_q:'「아니요」は「はい」という意味である', ox_a:false, type:'ox'},
+    {k:'괜찮아요', r:'クェンチャナヨ', j:'大丈夫です', exp:'体調や状況が問題ないときに使う。', choices:['大丈夫です','痛いです','わかりません','行きます'], ans:0, type:'4'},
+    {k:'모르겠어요', r:'モルゲッソヨ', j:'わかりません', exp:'知らない・理解できないときの表現。', choices:['わかりません','知っています','行きます','来ます'], ans:0, type:'4'},
+    {k:'알겠습니다', r:'アルゲッスムニダ', j:'わかりました（丁寧）', exp:'理解・了承を伝える丁寧表現。', choices:['わかりました','わかりません','できます','できません'], ans:0, type:'4'},
+    {k:'잠깐만요', r:'チャムカンマンニョ', j:'少々お待ちください', exp:'「잠깐」は「少し」、「만」は「だけ」。', choices:['少々お待ちを','どうぞ','またね','おやすみ'], ans:0, type:'4'},
+    {k:'실례합니다', r:'シルレハムニダ', j:'失礼します', exp:'通り過ぎるときや話しかけるときに使う。', choices:['失礼します','すみません','ありがとう','こんにちは'], ans:0, type:'4'},
+    {k:'어서 오세요', r:'オソ オセヨ', j:'いらっしゃいませ', exp:'お店での歓迎表現。「어서」は「さあ・どうぞ」。', choices:['いらっしゃいませ','ありがとう','さようなら','おやすみ'], ans:0, type:'4'},
+    {k:'맛있어요', r:'マシッソヨ', j:'おいしいです', exp:'食事のときによく使う表現。', ox_q:'「맛있어요」は「おいしいです」という意味である', ox_a:true, type:'ox'},
+    {k:'맛없어요', r:'マドゥッソヨ', j:'まずいです', exp:'「맛없다」で「おいしくない」。', ox_q:'「맛없어요」は「おいしいです」という意味である', ox_a:false, type:'ox'},
+    {k:'배고파요', r:'ペゴパヨ', j:'お腹が空きました', exp:'「배」はお腹、「고프다」は空く。', choices:['お腹が空いた','お腹がいっぱい','喉が渇いた','眠い'], ans:0, type:'4'},
+    {k:'배불러요', r:'ペブルロヨ', j:'お腹がいっぱいです', exp:'「배」はお腹、「부르다」はいっぱい。', choices:['お腹いっぱい','お腹が空いた','疲れた','眠い'], ans:0, type:'4'},
+    {k:'피곤해요', r:'ピゴネヨ', j:'疲れています', exp:'「피곤하다」で疲れている状態を表す。', choices:['疲れています','眠いです','痛いです','空腹です'], ans:0, type:'4'},
+    {k:'졸려요', r:'チョルリョヨ', j:'眠いです', exp:'「졸리다」で眠い状態。', choices:['眠いです','疲れています','痛いです','寒いです'], ans:0, type:'4'},
+    {k:'추워요', r:'チュウォヨ', j:'寒いです', exp:'「춥다」の丁寧形。冬によく使う。', choices:['寒いです','暑いです','涼しいです','温かいです'], ans:0, type:'4'},
+    {k:'더워요', r:'トウォヨ', j:'暑いです', exp:'「덥다」の丁寧形。夏によく使う。', choices:['暑いです','寒いです','涼しいです','温かいです'], ans:0, type:'4'},
+    {k:'좋아요', r:'チョアヨ', j:'いいですね・好きです', exp:'「좋다」で良い・好きの意味。', choices:['いいですね','よくないです','大丈夫です','わかりません'], ans:0, type:'4'},
+    {k:'싫어요', r:'シロヨ', j:'嫌いです・嫌です', exp:'「싫다」で嫌いの意味。', choices:['嫌いです','好きです','欲しいです','できます'], ans:0, type:'4'},
+    {k:'보고 싶어요', r:'ポゴ シッポヨ', j:'会いたいです', exp:'「보다」見る＋「싶다」したい。直訳は「見たい」。', choices:['会いたい','行きたい','食べたい','見たい'], ans:0, type:'4'},
+    {k:'사랑해요', r:'サランヘヨ', j:'愛しています', exp:'「사랑」は愛、「하다」はする。', choices:['愛しています','好きです','会いたい','ありがとう'], ans:0, type:'4'},
+    {k:'화이팅', r:'ファイティン', j:'頑張れ！', exp:'英語のFighting由来。応援の言葉として広く使われる。', ox_q:'「화이팅」は応援の言葉として使われる', ox_a:true, type:'ox'},
+    {k:'잘 자요', r:'チャル チャヨ', j:'おやすみなさい', exp:'「잘」はよく・上手に、「자다」は眠る。', choices:['おやすみ','こんばんは','おはよう','さようなら'], ans:0, type:'4'},
+    {k:'반가워요', r:'パンガウォヨ', j:'お会いできて嬉しいです', exp:'再会や初対面のときの嬉しい気持ちを表す。', choices:['会えて嬉しい','さようなら','またね','ありがとう'], ans:0, type:'4'},
+  ],
+
+  number: [
+    // 数字・時間 25問
+    {k:'일 (一)', r:'イル', j:'1（漢数詞）', exp:'漢数詞の1。日付・時刻の分・秒・番号に使う。', choices:['1','2','3','4'], ans:0, type:'4'},
+    {k:'이 (二)', r:'イ', j:'2（漢数詞）', exp:'漢数詞の2。', choices:['2','1','3','4'], ans:0, type:'4'},
+    {k:'삼 (三)', r:'サム', j:'3（漢数詞）', exp:'漢数詞の3。', choices:['3','2','1','4'], ans:0, type:'4'},
+    {k:'사 (四)', r:'サ', j:'4（漢数詞）', exp:'漢数詞の4。4번（4番）のように使う。', choices:['4','3','2','5'], ans:0, type:'4'},
+    {k:'오 (五)', r:'オ', j:'5（漢数詞）', exp:'漢数詞の5。', choices:['5','4','6','3'], ans:0, type:'4'},
+    {k:'육 (六)', r:'ユク', j:'6（漢数詞）', exp:'漢数詞の6。6월（6月）などに使う。', choices:['6','5','7','4'], ans:0, type:'4'},
+    {k:'칠 (七)', r:'チル', j:'7（漢数詞）', exp:'漢数詞の7。', choices:['7','6','8','5'], ans:0, type:'4'},
+    {k:'팔 (八)', r:'パル', j:'8（漢数詞）', exp:'漢数詞の8。', choices:['8','7','9','6'], ans:0, type:'4'},
+    {k:'구 (九)', r:'ク', j:'9（漢数詞）', exp:'漢数詞の9。', choices:['9','8','7','10'], ans:0, type:'4'},
+    {k:'십 (十)', r:'シプ', j:'10（漢数詞）', exp:'漢数詞の10。십오（15）のように使う。', choices:['10','9','11','8'], ans:0, type:'4'},
+    {k:'하나', r:'ハナ', j:'1（固有数詞）', exp:'固有数詞の1。個数・時間（時）に使う。', choices:['1','2','3','10'], ans:0, type:'4'},
+    {k:'둘', r:'ドゥル', j:'2（固有数詞）', exp:'固有数詞の2。', choices:['2','1','3','4'], ans:0, type:'4'},
+    {k:'셋', r:'セッ', j:'3（固有数詞）', exp:'固有数詞の3。助数詞がつくと「세」になる。', choices:['3','2','4','1'], ans:0, type:'4'},
+    {k:'넷', r:'ネッ', j:'4（固有数詞）', exp:'固有数詞の4。助数詞がつくと「네」になる。', choices:['4','3','5','2'], ans:0, type:'4'},
+    {k:'다섯', r:'タソッ', j:'5（固有数詞）', exp:'固有数詞の5。', choices:['5','4','6','3'], ans:0, type:'4'},
+    {k:'여섯', r:'ヨソッ', j:'6（固有数詞）', exp:'固有数詞の6。', choices:['6','5','7','4'], ans:0, type:'4'},
+    {k:'일곱', r:'イルゴプ', j:'7（固有数詞）', exp:'固有数詞の7。', choices:['7','6','8','5'], ans:0, type:'4'},
+    {k:'여덟', r:'ヨドル', j:'8（固有数詞）', exp:'固有数詞の8。発音に注意。', choices:['8','7','9','6'], ans:0, type:'4'},
+    {k:'아홉', r:'アホプ', j:'9（固有数詞）', exp:'固有数詞の9。', choices:['9','8','10','7'], ans:0, type:'4'},
+    {k:'열', r:'ヨル', j:'10（固有数詞）', exp:'固有数詞の10。', choices:['10','9','11','8'], ans:0, type:'4'},
+    {k:'몇 시예요?', r:'ミョッ シエヨ', j:'何時ですか？', exp:'「몇」は何、「시」は時。時刻を尋ねる表現。', choices:['何時ですか','何日ですか','何年ですか','何月ですか'], ans:0, type:'4'},
+    {k:'오늘', r:'オヌル', j:'今日', exp:'「오늘」は今日。よく使う時間表現。', choices:['今日','昨日','明日','今週'], ans:0, type:'4'},
+    {k:'어제', r:'オジェ', j:'昨日', exp:'「어제」は昨日。', choices:['昨日','今日','明日','先週'], ans:0, type:'4'},
+    {k:'내일', r:'ネイル', j:'明日', exp:'「내일」は明日。', choices:['明日','今日','昨日','今週'], ans:0, type:'4'},
+    {k:'지금', r:'チグム', j:'今', exp:'「지금」は今・現在。「지금 몇 시예요」は「今何時ですか」。', choices:['今','昨日','明日','いつも'], ans:0, type:'4'},
+  ],
+
+  food: [
+    // 食べ物・料理 25問
+    {k:'김치', r:'キムチ', j:'キムチ', exp:'韓国の代表的な発酵食品。白菜が定番。', ox_q:'「김치」はキムチのことである', ox_a:true, type:'ox'},
+    {k:'비빔밥', r:'ビビンバ', j:'ビビンバ', exp:'ご飯・野菜・肉・卵を混ぜた料理。「비비다」は混ぜる。', choices:['ビビンバ','プルコギ','クッパ','チゲ'], ans:0, type:'4'},
+    {k:'불고기', r:'プルコギ', j:'プルコギ', exp:'甘辛いタレで炒めた牛肉料理。「불」は火、「고기」は肉。', choices:['プルコギ','ビビンバ','クッパ','ナムル'], ans:0, type:'4'},
+    {k:'삼겹살', r:'サムギョプサル', j:'サムギョプサル（豚バラ焼き）', exp:'豚バラ肉を焼いて食べる韓国の定番グルメ。', choices:['サムギョプサル','チョッパル','チキン','カルビ'], ans:0, type:'4'},
+    {k:'갈비', r:'カルビ', j:'カルビ（焼き肉）', exp:'牛や豚のあばら肉。焼き肉の定番メニュー。', choices:['カルビ','プルコギ','タッカルビ','チョッパル'], ans:0, type:'4'},
+    {k:'냉면', r:'ネンミョン', j:'冷麺', exp:'冷たいスープや酢のたれで食べる麺料理。', choices:['冷麺','ラーメン','うどん','そば'], ans:0, type:'4'},
+    {k:'라면', r:'ラミョン', j:'ラーメン', exp:'韓国の袋麺は辛いものが多い。辛ラーメンが有名。', ox_q:'「라면」はラーメンのことである', ox_a:true, type:'ox'},
+    {k:'순두부찌개', r:'スンドゥブチゲ', j:'スンドゥブチゲ（豆腐鍋）', exp:'柔らかい豆腐の辛い鍋。「순두부」は柔らかい豆腐。', choices:['スンドゥブチゲ','キムチチゲ','ブデチゲ','コムタン'], ans:0, type:'4'},
+    {k:'김밥', r:'キンパ', j:'キンパ（韓国のり巻き）', exp:'ご飯と具材をのりで巻いたもの。寿司とは別物。', choices:['キンパ','ビビンパ','クッパ','ソルロンタン'], ans:0, type:'4'},
+    {k:'떡볶이', r:'トッポッキ', j:'トッポッキ', exp:'甘辛いコチュジャンで炒めた餅料理。屋台の定番。', choices:['トッポッキ','キンパ','スンデ','ホットク'], ans:0, type:'4'},
+    {k:'치킨', r:'チキン', j:'フライドチキン', exp:'韓国のチキンはサクサクで人気。「치킨」は揚げ鶏。', choices:['チキン','焼き鳥','から揚げ','手羽先'], ans:0, type:'4'},
+    {k:'물', r:'ムル', j:'水', exp:'「물」は水。「물 주세요」は「水をください」。', choices:['水','お茶','ジュース','コーヒー'], ans:0, type:'4'},
+    {k:'맥주', r:'メクチュ', j:'ビール', exp:'「맥」は麦、「주」はお酒。', choices:['ビール','焼酎','マッコリ','ワイン'], ans:0, type:'4'},
+    {k:'소주', r:'ソジュ', j:'焼酎', exp:'韓国の定番アルコール。25度前後が多い。', choices:['焼酎','ビール','マッコリ','ワイン'], ans:0, type:'4'},
+    {k:'막걸리', r:'マッコリ', j:'マッコリ（濁り酒）', exp:'米から作った伝統的な濁り酒。甘くて飲みやすい。', choices:['マッコリ','焼酎','ビール','梅酒'], ans:0, type:'4'},
+    {k:'커피', r:'コピ', j:'コーヒー', exp:'「커피」は英語Coffeeから。韓国はコーヒー文化が盛ん。', ox_q:'「커피」はコーヒーのことである', ox_a:true, type:'ox'},
+    {k:'밥', r:'パプ', j:'ご飯', exp:'「밥」はご飯・食事全般を指す。', choices:['ご飯','麺','パン','おかず'], ans:0, type:'4'},
+    {k:'국', r:'クク', j:'スープ・汁物', exp:'「국」は汁物全般。「된장국」はみそ汁。', choices:['スープ','ご飯','麺','デザート'], ans:0, type:'4'},
+    {k:'반찬', r:'パンチャン', j:'おかず', exp:'メイン料理に添える小鉢。韓国料理の特徴。', choices:['おかず','ご飯','スープ','デザート'], ans:0, type:'4'},
+    {k:'계란', r:'ケラン', j:'卵', exp:'「계란」は卵。「달걀」とも言う。', choices:['卵','肉','魚','豆腐'], ans:0, type:'4'},
+    {k:'고기', r:'コギ', j:'肉', exp:'「고기」は肉全般。「돼지고기」は豚肉、「소고기」は牛肉。', choices:['肉','魚','野菜','豆腐'], ans:0, type:'4'},
+    {k:'채소', r:'チェソ', j:'野菜', exp:'「채소」は野菜全般。', choices:['野菜','果物','肉','魚'], ans:0, type:'4'},
+    {k:'과일', r:'クァイル', j:'果物', exp:'「과일」は果物全般。', choices:['果物','野菜','肉','お菓子'], ans:0, type:'4'},
+    {k:'맵다', r:'マプタ', j:'辛い', exp:'韓国料理の特徴！「매워요」は「辛いです」。', ox_q:'「맵다」は「辛い」という意味である', ox_a:true, type:'ox'},
+    {k:'달다', r:'タルダ', j:'甘い', exp:'「달아요」は「甘いです」。', choices:['甘い','辛い','しょっぱい','酸っぱい'], ans:0, type:'4'},
+  ],
+
+  travel: [
+    // 旅行・観光 25問
+    {k:'어디예요?', r:'オディエヨ', j:'どこですか？', exp:'場所を尋ねる基本表現。', choices:['どこですか','いくらですか','何ですか','いつですか'], ans:0, type:'4'},
+    {k:'얼마예요?', r:'オルマエヨ', j:'いくらですか？', exp:'値段を尋ねる表現。買い物の基本。', choices:['いくらですか','どこですか','何ですか','いつですか'], ans:0, type:'4'},
+    {k:'이거 주세요', r:'イゴ チュセヨ', j:'これをください', exp:'「이거」はこれ、「주세요」はください。', choices:['これをください','これは何ですか','ここはどこ','いくらですか'], ans:0, type:'4'},
+    {k:'화장실', r:'ファジャンシル', j:'トイレ', exp:'「화장」は化粧、「실」は室。旅行必須ワード！', choices:['トイレ','レストラン','駅','ホテル'], ans:0, type:'4'},
+    {k:'지하철', r:'チハチョル', j:'地下鉄', exp:'「지하」は地下、「철」は鉄。ソウルの移動に必須。', choices:['地下鉄','バス','タクシー','電車'], ans:0, type:'4'},
+    {k:'버스', r:'ポス', j:'バス', exp:'英語Busから。「버스 정류장」はバス停。', choices:['バス','地下鉄','タクシー','飛行機'], ans:0, type:'4'},
+    {k:'택시', r:'テクシ', j:'タクシー', exp:'英語Taxiから。「택시 타다」はタクシーに乗る。', choices:['タクシー','バス','地下鉄','電車'], ans:0, type:'4'},
+    {k:'공항', r:'コンハン', j:'空港', exp:'「공」は空、「항」は港。', choices:['空港','駅','港','バスターミナル'], ans:0, type:'4'},
+    {k:'기차역', r:'キチャヨク', j:'鉄道の駅', exp:'「기차」は汽車・電車、「역」は駅。', choices:['鉄道駅','バス停','空港','港'], ans:0, type:'4'},
+    {k:'호텔', r:'ホテル', j:'ホテル', exp:'英語Hotelから。「호텔에 가다」はホテルへ行く。', choices:['ホテル','旅館','ゲストハウス','民宿'], ans:0, type:'4'},
+    {k:'병원', r:'ピョンウォン', j:'病院', exp:'旅行中の緊急時に必要なワード。', choices:['病院','薬局','歯医者','診療所'], ans:0, type:'4'},
+    {k:'약국', r:'ヤクク', j:'薬局', exp:'「약」は薬、「국」は店。', choices:['薬局','病院','スーパー','コンビニ'], ans:0, type:'4'},
+    {k:'편의점', r:'ピョニジョム', j:'コンビニ', exp:'韓国のコンビニ文化は日本と同様に発達している。', choices:['コンビニ','スーパー','デパート','薬局'], ans:0, type:'4'},
+    {k:'백화점', r:'ペックァジョム', j:'デパート', exp:'「백화」は百貨、「점」は店。', choices:['デパート','コンビニ','スーパー','市場'], ans:0, type:'4'},
+    {k:'시장', r:'シジャン', j:'市場', exp:'「남대문시장」「동대문시장」が有名な市場。', choices:['市場','スーパー','デパート','コンビニ'], ans:0, type:'4'},
+    {k:'입장권', r:'イプチャングォン', j:'入場券', exp:'「입장」は入場、「권」はチケット。', choices:['入場券','乗車券','食券','商品券'], ans:0, type:'4'},
+    {k:'사진', r:'サジン', j:'写真', exp:'「사진 찍어도 돼요?」は「写真を撮ってもいいですか？」', choices:['写真','動画','絵','地図'], ans:0, type:'4'},
+    {k:'지도', r:'チド', j:'地図', exp:'「지도 있어요?」は「地図はありますか？」', choices:['地図','写真','パンフレット','ガイドブック'], ans:0, type:'4'},
+    {k:'왼쪽', r:'ウェンチョク', j:'左', exp:'「오른쪽」は右、「왼쪽」は左。', choices:['左','右','前','後ろ'], ans:0, type:'4'},
+    {k:'오른쪽', r:'オルンチョク', j:'右', exp:'「오른쪽으로 가세요」は「右に行ってください」。', choices:['右','左','前','後ろ'], ans:0, type:'4'},
+    {k:'직진', r:'チクチン', j:'直進', exp:'道案内で使う表現。「직진하세요」は「まっすぐ行ってください」。', choices:['直進','右折','左折','Uターン'], ans:0, type:'4'},
+    {k:'도와주세요', r:'トワジュセヨ', j:'助けてください', exp:'緊急時に必要な表現。「도움」は助け。', choices:['助けてください','待ってください','来てください','止まってください'], ans:0, type:'4'},
+    {k:'영어 할 줄 아세요?', r:'ヨンオ ハル チュル アセヨ', j:'英語を話せますか？', exp:'言語コミュニケーションの確認表現。', choices:['英語は話せますか','日本語は分かりますか','韓国語が分かりますか','助けてください'], ans:0, type:'4'},
+    {k:'천천히 말해주세요', r:'チョンチョニ マレジュセヨ', j:'ゆっくり話してください', exp:'「천천히」はゆっくり、「말하다」は話す。', choices:['ゆっくり話して','もう一度言って','大きな声で','書いてください'], ans:0, type:'4'},
+    {k:'다시 한 번 말해주세요', r:'タシ ハン ボン マレジュセヨ', j:'もう一度言ってください', exp:'聞き取れなかったときの便利フレーズ。', choices:['もう一度言って','ゆっくり話して','書いてください','翻訳してください'], ans:0, type:'4'},
+  ],
+
+  kpop: [
+    // K-POP・文化 20問
+    {k:'오빠', r:'オッパ', j:'（女性が呼ぶ）年上の男性', exp:'女性が年上の男性を呼ぶ言葉。K-POPでよく聞く。', choices:['年上の男性（女性語）','年上の女性','弟','妹'], ans:0, type:'4'},
+    {k:'언니', r:'オンニ', j:'（女性が呼ぶ）年上の女性', exp:'女性が年上の女性を呼ぶ言葉。', choices:['年上の女性（女性語）','年上の男性','姉','妹'], ans:0, type:'4'},
+    {k:'노래', r:'ノレ', j:'歌', exp:'「노래하다」は歌う。K-POPで頻出。', choices:['歌','踊り','音楽','ライブ'], ans:0, type:'4'},
+    {k:'춤', r:'チュム', j:'ダンス', exp:'「춤추다」は踊る。K-POPのダンスパフォーマンスの必須語。', choices:['ダンス','歌','音楽','ステージ'], ans:0, type:'4'},
+    {k:'팬', r:'ペン', j:'ファン', exp:'英語Fanから。「팬클럽」はファンクラブ。', ox_q:'「팬」はファンという意味である', ox_a:true, type:'ox'},
+    {k:'콘서트', r:'コンソトゥ', j:'コンサート', exp:'英語Concertから。K-POPコンサートは世界中で人気。', choices:['コンサート','ライブ','フェス','公演'], ans:0, type:'4'},
+    {k:'아이돌', r:'アイドル', j:'アイドル', exp:'英語Idolから。韓国の体系的なアイドル育成システムは世界的に有名。', ox_q:'「아이돌」はアイドルのことである', ox_a:true, type:'ox'},
+    {k:'멋있다', r:'モシッタ', j:'かっこいい', exp:'「멋있어요」で丁寧形。K-POPスターへの賛辞。', choices:['かっこいい','かわいい','きれい','すごい'], ans:0, type:'4'},
+    {k:'귀엽다', r:'クィヨプタ', j:'かわいい', exp:'「귀여워요」で丁寧形。', choices:['かわいい','かっこいい','きれい','美しい'], ans:0, type:'4'},
+    {k:'예쁘다', r:'イェップダ', j:'きれいだ（外見）', exp:'「예뻐요」で丁寧形。主に外見の美しさに使う。', choices:['きれいだ','かわいい','かっこいい','すごい'], ans:0, type:'4'},
+    {k:'한류', r:'ハンリュ', j:'韓流', exp:'「한」は韓国、「류」は流れ。韓国文化ブームの総称。', choices:['韓流','韓国語','韓国料理','韓国ドラマ'], ans:0, type:'4'},
+    {k:'드라마', r:'ドゥラマ', j:'ドラマ', exp:'英語Dramaから。韓国ドラマは世界的に人気。', choices:['ドラマ','映画','アニメ','バラエティ'], ans:0, type:'4'},
+    {k:'영화', r:'ヨンファ', j:'映画', exp:'「영화 보러 가요」は「映画を見に行きましょう」。', choices:['映画','ドラマ','テレビ','バラエティ'], ans:0, type:'4'},
+    {k:'셀카', r:'セルカ', j:'自撮り・セルフィー', exp:'「셀프 카메라」の略。SNSでよく使われる。', choices:['自撮り','景色写真','集合写真','証明写真'], ans:0, type:'4'},
+    {k:'인스타', r:'インスタ', j:'インスタグラム', exp:'영어 Instagram의 줄임말。SNSで頻繁に使われる。', ox_q:'「인스타」はインスタグラムの略称である', ox_a:true, type:'ox'},
+    {k:'대박', r:'テバク', j:'すごい！・やばい！', exp:'元は大当たりの意味。感嘆詞として使われる。', choices:['すごい・大当たり','残念','ひどい','普通'], ans:0, type:'4'},
+    {k:'짱', r:'チャン', j:'最高！（スラング）', exp:'「짱이야」は「最高！」。若者言葉。', choices:['最高','最悪','普通','いまいち'], ans:0, type:'4'},
+    {k:'홧팅 / 화이팅', r:'ファイティン', j:'ファイト！（応援）', exp:'韓国語の応援表現として定着。スポーツ・受験・仕事など幅広く使う。', choices:['頑張れ！','お疲れ様','ありがとう','大丈夫'], ans:0, type:'4'},
+    {k:'맞팔', r:'マッパル', j:'相互フォロー（SNS用語）', exp:'「맞」は互い、「팔」はフォロー（follow）の略。', choices:['相互フォロー','フォロー','ブロック','いいね'], ans:0, type:'4'},
+    {k:'셀럽', r:'セロプ', j:'セレブリティ・有名人', exp:'英語Celebrity의 줄임말。', choices:['有名人・セレブ','アイドル','俳優','モデル'], ans:0, type:'4'},
+  ],
+};
+
+// ============================================================
+// GAME STATE
+// ============================================================
+const GENRE_NAMES = {
+  hangul: 'ハングル基礎',
+  greet: 'あいさつ・日常',
+  number: '数字・時間',
+  food: '食べ物・料理',
+  travel: '旅行・観光',
+  kpop: 'K-POP・文化',
+};
+
+let currentGenre = null;
+let gameQuestions = [];
+let currentQIdx = 0;
+let score = 0;
+let timeLeft = 120;
+let timerInterval = null;
+let wrongAnswers = [];
+let dotStates = [];
+let answered = false;
+
+// ============================================================
+// SCREEN MANAGEMENT
+// ============================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ============================================================
+// GENRE SELECT
+// ============================================================
+function selectGenre(genre) {
+  currentGenre = genre;
+  const pool = QUESTIONS[genre];
+  gameQuestions = shuffle(pool).slice(0, 10);
+  startGame();
+}
+
+// ============================================================
+// GAME START
+// ============================================================
+function startGame() {
+  currentQIdx = 0;
+  score = 0;
+  timeLeft = 120;
+  wrongAnswers = [];
+  dotStates = new Array(10).fill('pending');
+
+  // Progress dots
+  renderDots();
+
+  showScreen('screen-game');
+  startTimer();
+  showQuestion();
+}
+
+function renderDots() {
+  const area = document.getElementById('progress-dots');
+  area.innerHTML = '';
+  dotStates.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === currentQIdx ? ' current' : s === 'correct' ? ' done' : s === 'wrong' ? ' wrong-dot' : '');
+    area.appendChild(d);
+  });
+}
+
+// ============================================================
+// TIMER
+// ============================================================
+function startTimer() {
+  clearInterval(timerInterval);
+  updateTimerUI();
+  timerInterval = setInterval(() => {
+    timeLeft--;
+    updateTimerUI();
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
+      endGame();
+    }
+  }, 1000);
+}
+
+function updateTimerUI() {
+  const el = document.getElementById('timer-text');
+  el.textContent = timeLeft;
+  el.className = 'timer-text' + (timeLeft <= 15 ? ' danger' : '');
+  const bar = document.getElementById('timer-bar');
+  bar.style.width = Math.max(0, (timeLeft / 120) * 100) + '%';
+  if (timeLeft <= 15) bar.style.background = '#e74c3c';
+  else if (timeLeft <= 40) bar.style.background = 'linear-gradient(90deg, #e67e22, #f39c12)';
+  else bar.style.background = 'linear-gradient(90deg, var(--blue), var(--red))';
+}
+
+// ============================================================
+// QUESTION
+// ============================================================
+function showQuestion() {
+  if (currentQIdx >= gameQuestions.length) { endGame(); return; }
+  answered = false;
+  const q = gameQuestions[currentQIdx];
+
+  document.getElementById('q-counter').textContent = `Q${currentQIdx+1} / 10`;
+  document.getElementById('score-box').textContent = `${score} pt`;
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('next-btn').style.display = 'none';
+
+  renderDots();
+
+  // Determine type (mix)
+  const isOX = q.type === 'ox';
+  document.getElementById('q-type-badge').textContent = isOX ? '○× 問題' : '4択問題';
+
+  if (isOX) {
+    document.getElementById('q-korean').textContent = q.ox_q;
+    document.getElementById('q-katakana').textContent = q.r ? `読み：${q.r}` : '';
+    document.getElementById('q-japanese').textContent = '';
+    document.getElementById('q-hint-text').textContent = `ヒント：${q.exp}`;
+  } else {
+    document.getElementById('q-korean').textContent = q.k;
+    document.getElementById('q-katakana').textContent = `📢 ${q.r}`;
+    document.getElementById('q-japanese').textContent = `意味：${q.j}`;
+    document.getElementById('q-hint-text').textContent = '';
+  }
+
+  // Render choices
+  const area = document.getElementById('choices-area');
+  area.innerHTML = '';
+
+  if (isOX) {
+    const wrap = document.createElement('div');
+    wrap.className = 'choices-ox';
+    ['○ 正しい','× 間違い'].forEach((label, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn ox';
+      btn.textContent = i === 0 ? '○' : '×';
+      btn.title = label;
+      btn.onclick = () => answerOX(i === 0, q);
+      wrap.appendChild(btn);
+    });
+    area.appendChild(wrap);
+  } else {
+    const wrap = document.createElement('div');
+    wrap.className = 'choices-4';
+    q.choices.forEach((c, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'choice-btn';
+      btn.textContent = c;
+      btn.onclick = () => answer4(i, q, wrap);
+      wrap.appendChild(btn);
+    });
+    area.appendChild(wrap);
+  }
+}
+
+function answer4(idx, q, wrap) {
+  if (answered) return;
+  answered = true;
+  const btns = wrap.querySelectorAll('.choice-btn');
+  const correct = idx === q.ans;
+  btns[q.ans].classList.add('correct');
+  if (!correct) btns[idx].classList.add('wrong');
+  processAnswer(correct, q, btns[q.ans].textContent);
+}
+
+function answerOX(userYes, q) {
+  if (answered) return;
+  answered = true;
+  const correct = (userYes === q.ox_a);
+  const correctLabel = q.ox_a ? '○（正しい）' : '×（間違い）';
+  processAnswer(correct, q, correctLabel);
+}
+
+function processAnswer(correct, q, correctLabel) {
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score += 10;
+    timeLeft = Math.min(timeLeft + 5, 180);
+    dotStates[currentQIdx] = 'correct';
+    fb.className = 'feedback correct';
+    fb.textContent = `✅ 정답！ ＋5秒 (${q.r} ／ ${q.j})`;
+  } else {
+    timeLeft = Math.max(timeLeft - 5, 0);
+    dotStates[currentQIdx] = 'wrong';
+    wrongAnswers.push(q);
+    fb.className = 'feedback wrong';
+    fb.textContent = `❌ 正解は「${correctLabel}」 （−5秒）`;
+  }
+  updateTimerUI();
+  document.getElementById('score-box').textContent = `${score} pt`;
+  renderDots();
+  document.getElementById('next-btn').style.display = 'block';
+}
+
+function nextQuestion() {
+  currentQIdx++;
+  if (currentQIdx >= gameQuestions.length) endGame();
+  else showQuestion();
+}
+
+// ============================================================
+// END GAME
+// ============================================================
+function endGame() {
+  clearInterval(timerInterval);
+  const bonus = Math.max(0, timeLeft);
+  const total = score + bonus;
+
+  document.getElementById('result-score').textContent = total;
+  document.getElementById('stat-correct').textContent = score / 10;
+  document.getElementById('stat-wrong').textContent = wrongAnswers.length;
+  document.getElementById('stat-bonus').textContent = `+${bonus}`;
+
+  const trophy = total >= 150 ? '🥇' : total >= 100 ? '🥈' : total >= 50 ? '🥉' : '😅';
+  document.getElementById('result-trophy').textContent = trophy;
+
+  // Wrong answers list
+  const wl = document.getElementById('wrong-list');
+  if (wrongAnswers.length === 0) {
+    wl.innerHTML = '<div style="text-align:center;color:#2ecc71;padding:20px;">🎉 全問正解！素晴らしい！</div>';
+  } else {
+    wl.innerHTML = `<h3>❌ 間違えた問題（${wrongAnswers.length}問）</h3>`;
+    wrongAnswers.forEach((q, i) => {
+      const div = document.createElement('div');
+      div.className = 'wrong-item';
+      div.innerHTML = `
+        <div class="wrong-q">第${i+1}問 ／ ${q.type === 'ox' ? '○×問題' : '4択問題'}</div>
+        <div class="wrong-korean">${q.type === 'ox' ? q.ox_q : q.k}</div>
+        <div class="wrong-reading">📢 ${q.r}</div>
+        <div class="wrong-meaning">✅ ${q.j}</div>
+        <div class="wrong-exp">${q.exp}</div>
+      `;
+      wl.appendChild(div);
+    });
+  }
+
+  // Store temp score
+  window._lastTotal = total;
+  window._lastGenre = currentGenre;
+
+  showScreen('screen-result');
+}
+
+// ============================================================
+// RANKING (localStorage)
+// ============================================================
+function getRankKey(genre) { return `korean_quiz_rank_${genre}`; }
+
+function saveScore() {
+  const name = document.getElementById('player-name').value.trim() || 'ゲスト';
+  const genre = window._lastGenre;
+  const score = window._lastTotal;
+  const key = getRankKey(genre);
+  let list = JSON.parse(localStorage.getItem(key) || '[]');
+  list.push({ name, score, date: new Date().toLocaleDateString('ja-JP') });
+  list.sort((a,b) => b.score - a.score);
+  list = list.slice(0, 20);
+  localStorage.setItem(key, JSON.stringify(list));
+  document.getElementById('name-input-wrap').innerHTML = '<div style="text-align:center;color:#2ecc71;padding:8px;">✅ ランキングに登録しました！</div>';
+}
+
+function showRanking() {
+  // Build tabs
+  const tabRow = document.getElementById('rank-tabs');
+  tabRow.innerHTML = '';
+  Object.entries(GENRE_NAMES).forEach(([k, v]) => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (k === 'hangul' ? ' active' : '');
+    btn.textContent = v;
+    btn.onclick = () => {
+      tabRow.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      renderRankList(k);
+    };
+    tabRow.appendChild(btn);
+  });
+  renderRankList('hangul');
+  showScreen('screen-ranking');
+}
+
+function renderRankList(genre) {
+  const list = JSON.parse(localStorage.getItem(getRankKey(genre)) || '[]');
+  const el = document.getElementById('rank-list');
+  el.innerHTML = '';
+  if (list.length === 0) {
+    el.innerHTML = '<div class="empty-rank">まだ記録がありません。挑戦してみよう！</div>';
+    return;
+  }
+  list.forEach((item, i) => {
+    const numClass = i===0?'rank-num gold':i===1?'rank-num silver':i===2?'rank-num bronze':'rank-num';
+    const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
+    el.innerHTML += `
+      <li class="rank-item">
+        <span class="${numClass}">${medal}</span>
+        <span class="rank-name">${item.name}</span>
+        <span style="font-size:0.78rem;color:var(--sub);">${item.date}</span>
+        <span class="rank-score">${item.score}pt</span>
+      </li>`;
+  });
+}
+
+function confirmBack() {
+  if (confirm('ゲームを中断してトップに戻りますか？')) {
+    clearInterval(timerInterval);
+    showScreen('screen-top');
+  }
+}
+
+function retryGenre() {
+  selectGenre(window._lastGenre);
+}
+
+// ============================================================
+// UTILS
+// ============================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length-1; i>0; i--) {
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]] = [a[j],a[i]];
+  }
+  return a;
+}
+
+// Responsive handler
+function handleResize() {
+  const vw = window.innerWidth;
+  document.documentElement.style.setProperty('--base-font', vw < 400 ? '14px' : '16px');
+}
+window.addEventListener('resize', handleResize);
+handleResize();
+</script>
+</body>
+</html>
